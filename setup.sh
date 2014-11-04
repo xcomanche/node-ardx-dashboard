@@ -7,11 +7,11 @@ echo "Done."
 echo "Installing grunt"
 sudo npm install grunt 
 echo "Done."
-echo "Installing bower"
-bower install
-echo "Done."
 echo "Installing bower npm package"
 sudo npm install -g bower
+echo "Done."
+echo "Installing bower"
+bower install
 echo "Done."
 echo "Installing connect-liverload npm package"
 sudo npm install --save-dev connect-livereload
@@ -23,6 +23,6 @@ echo "Updating ruby GEM files"
 gem update --system
 echo "Done."
 echo "Installing compass"
-gem install compass
+sudo gem install compass
 echo "Done."
 echo "Exiting"

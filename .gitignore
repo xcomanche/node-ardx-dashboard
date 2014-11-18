@@ -25,3 +25,5 @@ bower_components
 .idea/vcs.xml
 
 .idea/workspace.xml
+
+projectFilesBackup/.idea/workspace.xml

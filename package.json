@@ -1,7 +1,13 @@
 {
   "name": "nodeardxdashboard",
   "version": "0.0.0",
-  "dependencies": {},
+  "dependencies" : {
+    "express"    : "~4.10.2",
+    "mongoose"   : "~3.8.19",
+    "morgan"     : "~1.5.0",
+    "body-parser": "~1.9.2",
+    "method-override": "~2.3.0"
+  },
   "devDependencies": {
     "connect-livereload": "^0.5.0",
     "grunt": "^0.4.5",

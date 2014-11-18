@@ -17,7 +17,7 @@ echo "Installing connect-liverload npm package"
 sudo npm install --save-dev connect-livereload
 echo "Done."
 echo "Installing npm depencies"
-sudo npm install
+npm install
 echo "Done."
 echo "Updating ruby GEM files"
 gem update --system

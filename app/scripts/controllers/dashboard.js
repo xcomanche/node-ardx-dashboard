@@ -1,5 +1,4 @@
 'use strict';
-
 /**
  * @ngdoc function
  * @name nodeArdxDashboardApp.controller:MainCtrl
@@ -9,4 +8,5 @@
  */
 angular.module('nodeArdxDashboardApp')
   .controller('DashboardCtrl', function () {
+
   });

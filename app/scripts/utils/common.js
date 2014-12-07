@@ -34,4 +34,5 @@ Common.guid = (function guid() {
       s4() + '-' + s4() + s4() + s4();
   };
 })();
+
 exports = module.exports = Common;

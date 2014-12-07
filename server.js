@@ -12,10 +12,12 @@ var morgan          = require('morgan');             // log requests to the cons
 var bodyParser      = require('body-parser');    // pull information from HTML POST (express4)
 var methodOverride  = require('method-override'); // simulate DELETE and PUT (express4)
 var ProcessingStore = require('./app/scripts/stores/ProcessingStore');
-var Led             = require('./app/scripts/models/Led');
+var DevicesStore    = require('./app/scripts/stores/DevicesStore');
+var j5loader        = require('./app/scripts/lib/j5loader');
 var Common          = require('./app/scripts/utils/common');
 
-var store = new ProcessingStore(server, client);
+var processingStore = new ProcessingStore(server, client);
+var devicesStore    = new DevicesStore();
 
 server.bindSync('tcp://127.0.0.1:3001');
 console.log('Radiostation connected to port 3001');
@@ -23,7 +25,7 @@ console.log('Radiostation connected to port 3001');
 client.connect('tcp://127.0.0.1:3000');
 console.log('Listener connected to port 3000');
 
-store.listen();
+processingStore.listen();
 
 // configuration =================
 
@@ -38,17 +40,19 @@ app.use(methodOverride());
 
 // listen (start app with node server.js) ======================================
 app.listen(8080);
-
-app.post('/api/addDevice', function(req, res) {
-  console.log(req, res);
+app.get('/api/object', function(req, res) {
+  res.json({'objects': JSON.stringify(j5loader.getItemsForSerialization())});
 });
 
 app.get('/api/device', function(req, res) {
-  var led = new Led(9);
-  var led2 = new Led(10);
+  res.json({'devices': devicesStore.getItemsForSerialization()});
+});
 
-  store.add(led.init());
-  store.add(led2.init());
+app.get('/api/device/:id', function(req, res) {
+  var id = req.param("id");
+  var led = new Led(9);
+
+  processingStore.add(led.init());
 
   var callbacks = {};
   callbacks[Common.CommandStatuses.PROCESSED_RESPONSE_RECEIVED] = function (response) {
@@ -58,10 +62,54 @@ app.get('/api/device', function(req, res) {
     console.log('COMPLETED Callback Fired!!!');
     console.log(response);
   };
-  store.add(led.command('on', '', callbacks));
+  processingStore.add(led.command('on', '', callbacks));
 
   res.json({'device':'hey'});
 });
+
+app.post('/api/device', function(req, res) {
+  var items       = j5loader.getItems();
+  var objectName  = req.body.objectName;
+  var params      = req.body.params;
+  var init        = req.body.init;
+
+  if (!Boolean(items[objectName])) {
+    res.json({
+      status: 'error',
+      code  : 'Object not found',
+      msg   : ''
+    });
+
+    return false;
+  }
+
+  try {
+    var device = new items[objectName](params);
+  } catch (err) {
+    res.json({
+      status: 'error',
+      code  : 'Unknown error',
+      msg   : err.message
+    });
+
+    return false;
+  }
+
+  devicesStore.add(device);
+
+  if (init) {
+    processingStore.add(device.init());
+    res.json({'status': 'initialized', 'id':device.id});
+
+    return true;
+  }
+
+  res.json({'status': 'added', 'id':device.id});
+
+  return true;
+});
+
+
 
 
 

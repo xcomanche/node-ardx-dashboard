@@ -1,8 +1,7 @@
 /**
  * Created by comanche on 06.12.14.
  */
-var Common = require('../utils/common');
-var PROCESSED = Common.CommandStatuses.PROCESSED_RESPONSE_RECEIVED;
+var Common = require('../../utils/common');
 var guid = Common.guid;
 
 
@@ -14,8 +13,8 @@ var LED = function(params) {
   this.lastCommandCallbacks = {};
 };
 
-LED.prototype.className   = 'Led';
-LED.prototype.init        = function() {
+LED.prototype.className     = 'Led';
+LED.prototype.init          = function() {
   return {
     id          : this.id,
     init        : true,
@@ -23,7 +22,22 @@ LED.prototype.init        = function() {
     initParams  : this.classParams
   };
 };
-LED.prototype.command        = function(command, params, callbacks) {
+
+LED.prototype.getSerializedItem  = function() {
+  return {
+    id          : this.id,
+    object      : this.className,
+    initParams  : this.classParams,
+    lastCommand : this.lastCommandName,
+    lastParams  : this.lastCommandParams
+  };
+};
+
+LED.prototype.getId         = function() {
+  return this.id;
+};
+
+LED.prototype.command       = function(command, params, callbacks) {
   if (!(command in this.methods)) {
     throw 'Command not found!';
   }

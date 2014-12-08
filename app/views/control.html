@@ -1,8 +1,53 @@
-<div ng-repeat="object in objects">
-  <h2>
-    <a href='{{post.url}}'>{{post.title}}</a>
-  </h2>
-  <div class='time'>{{post.time}} - {{post.author}} </div>
-  <p>{{post.description}}</p>
-  <img ng-src="{{post.banner}}" />
+<div style="witdth:300px; float: left; margin-right:50px;">
+  <h1>Objects</h1>
+  <div ng-repeat="(name, object) in objects">
+    <h2>
+      {{name}}
+    </h2>
+
+    <ul>
+      <li ng-repeat="(method, params) in object"> {{method}} : {{params}}
+    </ul>
+    <form>
+      <fieldset>
+        <legend>Init Properties:</legend>
+        Params: <input type="text" ng-model="objModel.params"> <input type="checkbox" name="init" checked ng-model="objModel.init">
+        <input type="button" value="Додати" ng-click="postDevice('{{name}}')"> <br />
+      </fieldset>
+    </form>
+  </div>
+</div>
+
+<div style="witdth:300px; float: left; margin-right:50px;">
+  <h1>Devices</h1>
+  <div ng-repeat="(id, object) in devices">
+    <h2>
+      {{object.object}} [{{id}}]
+    </h2>
+
+    <ul>
+      <li ng-repeat="(method, params) in object"> {{method}} : {{params}}
+    </ul>
+    <form>
+      <fieldset>
+        <legend>Command:</legend>
+        Command: <input type="text" ng-model="devModel.command"> <br />
+        Params: <input type="text" ng-model="devModel.params">
+        <input type="button" value="Виконати" ng-click="putDevice('{{id}}')"> <br />
+      </fieldset>
+    </form>
+  </div>
+</div>
+
+<div style="witdth:300px; float: left;">
+  <h1>Messages</h1>
+  <div ng-repeat="(name, object) in messages">
+    <h2>
+      {{name}}
+    </h2>
+
+    <ul>
+      <li ng-repeat="(method, params) in object"> {{method}} : {{params}}
+    </ul>
+  </div>
 </div>

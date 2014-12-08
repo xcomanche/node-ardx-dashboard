@@ -18,6 +18,14 @@ var Common          = require('./app/scripts/utils/common');
 
 var processingStore = new ProcessingStore(server, client);
 var devicesStore    = new DevicesStore();
+var allowCrossDomain= function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', 'http://localhost:9000');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+
+  next();
+};
+
 
 server.bindSync('tcp://127.0.0.1:3001');
 console.log('Radiostation connected to port 3001');
@@ -31,6 +39,7 @@ processingStore.listen();
 
 mongoose.connect('mongodb://node-ardx-dashboard:a21tdEMAbeos@proximus.modulusmongo.net:27017/i5Soqosy');     // connect to mongoDB database on modulus.io
 
+app.use(allowCrossDomain);
 app.use(express.static(__dirname + '/app/public'));                 // set the static files location /public/img will be /img for users
 app.use(morgan('dev'));                                         // log every request to the console
 app.use(bodyParser.urlencoded({'extended':'true'}));            // parse application/x-www-form-urlencoded
@@ -69,7 +78,7 @@ app.get('/api/device/:id', function(req, res) {
 
 app.post('/api/device', function(req, res) {
   var items       = j5loader.getItems();
-  var objectName  = req.body.objectName;
+  var objectName  = req.body.name;
   var params      = req.body.params;
   var init        = req.body.init;
 
@@ -109,6 +118,18 @@ app.post('/api/device', function(req, res) {
   return true;
 });
 
+app.put('/api/device', function(req, res) {
+  var id          = req.body.id;
+  var params      = req.body.params;
+  var command     = req.body.command;
+  var device      = devicesStore.findById(id);
+
+  processingStore.add(device.command(command, params));
+
+  res.json({'status': 'command_send', 'id':device.id});
+
+  return true;
+});
 
 
 

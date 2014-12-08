@@ -9,6 +9,7 @@
  */
 angular.module('nodeArdxDashboardApp')
   .controller('ControlCtrl', function($scope, $http) {
+    var apiUrl = 'http://127.0.0.1:8080/api';
     $scope.objects  = {};
     $scope.devices  = {};
     $scope.messages = {};
@@ -16,7 +17,7 @@ angular.module('nodeArdxDashboardApp')
     $scope.devModel = {};
 
 
-    refreshObjects()
+    refreshObjects();
     refreshDevices();
 
     $scope.postDevice = function (objectName) {
@@ -25,7 +26,7 @@ angular.module('nodeArdxDashboardApp')
       body.params = $scope.objModel.params;
       body.init   = $scope.objModel.init;
 
-      $http.post('http://localhost:8080/api/device', body).
+      $http.post(apiUrl + '/device', body).
         success(function(data, status, headers, config) {
           console.log('Success: ' + data);
           refreshDevices();
@@ -41,7 +42,7 @@ angular.module('nodeArdxDashboardApp')
       body.params = $scope.devModel.params;
       body.command= $scope.devModel.command;
 
-      $http.put('http://localhost:8080/api/device', body).
+      $http.put('device', body).
         success(function(data, status, headers, config) {
           console.log('Success: ' + data);
         }).
@@ -51,7 +52,7 @@ angular.module('nodeArdxDashboardApp')
     };
 
     function refreshObjects () {
-      $http.get('http://localhost:8080/api/object').
+      $http.get(apiUrl + '/object').
         success(function(data, status, headers, config) {
           if (data['objects']) {
             $scope.objects = JSON.parse(data.objects);
@@ -63,7 +64,7 @@ angular.module('nodeArdxDashboardApp')
     };
 
     function refreshDevices () {
-      $http.get('http://localhost:8080/api/device').
+      $http.get(apiUrl + '/device').
         success(function(data, status, headers, config) {
           if (data['devices']) {
             $scope.devices = data.devices;

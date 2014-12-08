@@ -48,7 +48,10 @@ app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse applica
 app.use(methodOverride());
 
 // listen (start app with node server.js) ======================================
-app.listen(8080);
+app.listen(8080, function () {
+  console.log('Express Started');
+});
+
 app.get('/api/object', function(req, res) {
   res.json({'objects': JSON.stringify(j5loader.getItemsForSerialization())});
 });

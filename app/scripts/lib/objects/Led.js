@@ -6,8 +6,8 @@ var BaseObject = require('./BaseObject');
 LED.prototype = new BaseObject();
 LED.prototype.constructor=LED;
 
-function LED() {
-
+function LED(name, params) {
+  BaseObject.call(this, name, params);
 }
 
 LED.prototype.className     = 'Led';

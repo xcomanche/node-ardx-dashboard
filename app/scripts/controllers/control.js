@@ -21,17 +21,17 @@ angular.module('nodeArdxDashboardApp')
     refreshDevices();
 
     $scope.postDevice = function (objectName) {
-      var body    = {};
-      body.name   = objectName;
-      body.params = $scope.objModel.params;
-      body.init   = $scope.objModel.init;
+      var body        = {};
+      body.name       = $scope.objModel.name;
+      body.objectName = objectName;
+      body.params     = $scope.objModel.params;
 
       $http.post(apiUrl + '/device', body).
-        success(function(data, status, headers, config) {
+        success(function(data) {
           console.log('Success: ' + data);
           refreshDevices();
         }).
-        error(function(data, status, headers, config) {
+        error(function(data) {
           console.log('Fail: ' + data);
         });
     };
@@ -42,36 +42,36 @@ angular.module('nodeArdxDashboardApp')
       body.params = $scope.devModel.params;
       body.command= $scope.devModel.command;
 
-      $http.put('device', body).
-        success(function(data, status, headers, config) {
+      $http.put(apiUrl + '/device', body).
+        success(function(data) {
           console.log('Success: ' + data);
         }).
-        error(function(data, status, headers, config) {
+        error(function(data) {
           console.log('Fail: ' + data);
         });
     };
 
     function refreshObjects () {
       $http.get(apiUrl + '/object').
-        success(function(data, status, headers, config) {
+        success(function(data) {
           if (data['objects']) {
             $scope.objects = JSON.parse(data.objects);
           }
         }).
-        error(function(data, status, headers, config) {
+        error(function() {
           console.log('Something went wrong');
         });
-    };
+    }
 
     function refreshDevices () {
       $http.get(apiUrl + '/device').
-        success(function(data, status, headers, config) {
+        success(function(data) {
           if (data['devices']) {
             $scope.devices = data.devices;
           }
 
         }).
-        error(function(data, status, headers, config) {
+        error(function() {
           console.log('Something went wrong');
         });
     }

@@ -81,9 +81,9 @@ app.get('/api/device/:id', function(req, res) {
 
 app.post('/api/device', function(req, res) {
   var items       = j5loader.getItems();
-  var objectName  = req.body.name;
+  var objectName  = req.body.objectName;
+  var name        = req.body.name;
   var params      = req.body.params;
-  var init        = req.body.init;
 
   if (!Boolean(items[objectName])) {
     res.json({
@@ -96,7 +96,7 @@ app.post('/api/device', function(req, res) {
   }
 
   try {
-    var device = new items[objectName](params);
+    var device = new items[objectName](name, params);
   } catch (err) {
     res.json({
       status: 'error',
@@ -108,15 +108,8 @@ app.post('/api/device', function(req, res) {
   }
 
   devicesStore.add(device);
-
-  if (init) {
-    processingStore.add(device.init());
-    res.json({'status': 'initialized', 'id':device.id});
-
-    return true;
-  }
-
-  res.json({'status': 'added', 'id':device.id});
+  processingStore.add(device.init());
+  res.json({'status': 'initialized', 'id':device.id});
 
   return true;
 });

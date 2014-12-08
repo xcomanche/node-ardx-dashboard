@@ -5,7 +5,8 @@ var J5Loader = function () {
   var me = this;
   me.items = {};
   [
-    "Led"
+    "Led",
+    "Pir"
   ].forEach(function(constructor) {
       me.add(constructor, require(
         "./objects/" + constructor.toLowerCase()
@@ -27,7 +28,10 @@ J5Loader.prototype.getItemsForSerialization = function () {
   var items = {};
 
   for (name in this.items) {
-    items[name] = this.items[name]['prototype']['methods'];
+    items[name] = {
+      'methods' : this.items[name]['prototype']['methods'],
+      'events'  : this.items[name]['prototype']['events']
+    };
   }
 
   return items;

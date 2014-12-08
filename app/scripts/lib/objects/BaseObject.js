@@ -4,26 +4,32 @@
 var Common = require('../../utils/common');
 var guid = Common.guid;
 
-var BaseObject = function(params) {
+var BaseObject = function(name, params) {
   this.id                   = guid();
+  this.name                 = name;
   this.classParams          = params;
   this.lastCommandName      = '';
   this.lastCommandParams    = '';
   this.lastCommandCallbacks = {};
 };
 
+BaseObject.prototype.methods  = {};
+BaseObject.prototype.events   = [];
+
 BaseObject.prototype.init          = function() {
   return {
     id          : this.id,
     init        : true,
     initObject  : this.className,
-    initParams  : this.classParams
+    initParams  : this.classParams,
+    initEvents  : this.events
   };
 };
 
 BaseObject.prototype.getSerializedItem  = function() {
   return {
     id          : this.id,
+    name        : this.name,
     object      : this.className,
     initParams  : this.classParams,
     lastCommand : this.lastCommandName,

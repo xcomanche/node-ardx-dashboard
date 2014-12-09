@@ -8,14 +8,20 @@
  * Controller of the nodeArdxDashboardApp
  */
 angular.module('nodeArdxDashboardApp')
-  .controller('ControlCtrl', function($scope, $http) {
+  .controller('ControlCtrl', function($scope, $http, messagesSocket) {
+
     var apiUrl = 'http://127.0.0.1:8080/api';
     $scope.objects  = {};
     $scope.devices  = {};
-    $scope.messages = {};
+    $scope.events   = [];
     $scope.objModel = {};
     $scope.devModel = {};
 
+    $scope.$on('socket:firmatraEvent', function (ev, data) {
+      if (data.event) {
+        $scope.events.push(data);
+      }
+    });
 
     refreshObjects();
     refreshDevices();

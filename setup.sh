@@ -5,7 +5,7 @@ echo "Installing grunt-cli"
 sudo npm install -g grunt-cli
 echo "Done."
 echo "Installing grunt"
-sudo npm install grunt 
+sudo npm install grunt
 echo "Done."
 echo "Installing bower npm package"
 sudo npm install -g bower
@@ -25,4 +25,7 @@ echo "Done."
 echo "Installing compass"
 sudo gem install compass
 echo "Done."
+echo "Installing angular socket io"
+bower install angular-socket-io
+echo "Done"
 echo "Exiting"

@@ -4,8 +4,8 @@
 // set up ========================
 var express         = require('express');
 var zmq             = require('zmq'),
-    server          = zmq.socket('push'),
-    client          = zmq.socket('pull');
+    zmqServer       = zmq.socket('push'),
+    zmqClient       = zmq.socket('pull');
 var app             = express();                               // create our app w/ express
 var mongoose        = require('mongoose');                     // mongoose for mongodb
 var morgan          = require('morgan');             // log requests to the console (express4)
@@ -15,9 +15,6 @@ var ProcessingStore = require('./app/scripts/stores/ProcessingStore');
 var DevicesStore    = require('./app/scripts/stores/DevicesStore');
 var j5loader        = require('./app/scripts/lib/j5loader');
 var Common          = require('./app/scripts/utils/common');
-
-var processingStore = new ProcessingStore(server, client);
-var devicesStore    = new DevicesStore();
 var allowCrossDomain= function(req, res, next) {
   res.header('Access-Control-Allow-Origin', 'http://localhost:9000');
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
@@ -27,13 +24,13 @@ var allowCrossDomain= function(req, res, next) {
 };
 
 
-server.bindSync('tcp://127.0.0.1:3001');
+zmqServer.bindSync('tcp://127.0.0.1:3001');
 console.log('Radiostation connected to port 3001');
 
-client.connect('tcp://127.0.0.1:3000');
+zmqClient.connect('tcp://127.0.0.1:3000');
 console.log('Listener connected to port 3000');
 
-processingStore.listen();
+
 
 // configuration =================
 
@@ -48,9 +45,17 @@ app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse applica
 app.use(methodOverride());
 
 // listen (start app with node server.js) ======================================
-app.listen(8080, function () {
+var server          = app.listen(8080, function () {
   console.log('Express Started');
 });
+var io              = require('socket.io').listen(server);
+var processingStore = new ProcessingStore(zmqServer, zmqClient, io);
+var devicesStore    = new DevicesStore();
+
+io.sockets.on('connection', function(client) {
+  console.log('Socket.io - Client connected: ' + client.conn.remoteAddress);
+});
+processingStore.listen(io);
 
 app.get('/api/object', function(req, res) {
   res.json({'objects': JSON.stringify(j5loader.getItemsForSerialization())});
@@ -126,7 +131,4 @@ app.put('/api/device', function(req, res) {
 
   return true;
 });
-
-
-
 

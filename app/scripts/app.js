@@ -15,7 +15,8 @@ angular
     'ngResource',
     'ngRoute',
     'ngSanitize',
-    'ngTouch'
+    'ngTouch',
+    'btford.socket-io'
   ])
   .config(function ($routeProvider) {
     $routeProvider
@@ -38,4 +39,13 @@ angular
       .otherwise({
         redirectTo: '/index'
       });
+  })
+  .factory('messagesSocket', function (socketFactory) {
+    var connection = io.connect('http://127.0.0.1:8080/');
+
+    var mySocket = socketFactory({
+      ioSocket: connection
+    });
+    mySocket.forward('firmatraEvent');
+    return mySocket;
   });

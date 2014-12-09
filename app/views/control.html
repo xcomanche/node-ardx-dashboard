@@ -6,7 +6,7 @@
     </h2>
     <h3>Methods</h3>
     <ul>
-      <li ng-repeat="(method, params) in object.methods"> {{method}} : {{params}}
+      <li ng-repeat="(method, params) in object.methods"> {{method}}
     </ul>
     <h3>Events</h3>
     <ul>
@@ -45,14 +45,8 @@
 </div>
 
 <div style="witdth:300px; float: left;">
-  <h1>Messages</h1>
-  <div ng-repeat="(name, object) in messages">
-    <h2>
-      {{name}}
-    </h2>
-
-    <ul>
-      <li ng-repeat="(method, params) in object"> {{method}} : {{params}}
-    </ul>
-  </div>
+  <h1>Events</h1>
+  <ul>
+    <li ng-repeat="item in events"> {{item.event}}
+  </ul>
 </div>

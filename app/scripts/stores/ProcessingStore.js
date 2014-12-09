@@ -4,10 +4,10 @@
 var Common = require('../utils/common');
 var STATUSES = Common.CommandStatuses;
 
-var ProcessingStore = function (server, client) {
+var ProcessingStore = function (server, client, io) {
   this.server = server;
   this.client = client;
-
+  this.io     = io;
   this.commands = [];
 };
 
@@ -17,12 +17,19 @@ ProcessingStore.prototype.listen = function () {
   client.on('message', function(resp){
     var response = JSON.parse(resp);
 
-    if (response.id) {
+    if ((response.id) && (response.status = STATUSES.COMPLETED)) {
+      me.fireEvent(response);
+    } else if (response.id) {
       me.processResponseToCommand(response);
     } else {
       console.log(response);
     }
   });
+};
+
+ProcessingStore.prototype.fireEvent = function (response) {
+  this.io.sockets.emit('firmatraEvent', response);
+  console.log('Event transfered to Listener: ' + response.event);
 };
 
 ProcessingStore.prototype.processResponseToCommand = function (command) {

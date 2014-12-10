@@ -11,22 +11,6 @@ var ProcessingStore = function (server, client, io) {
   this.commands = [];
 };
 
-ProcessingStore.prototype.listen = function () {
-  var client = this.client;
-  var me = this;
-  client.on('message', function(resp){
-    var response = JSON.parse(resp);
-
-    if ((response.id) && (response.status = STATUSES.COMPLETED)) {
-      me.fireEvent(response);
-    } else if (response.id) {
-      me.processResponseToCommand(response);
-    } else {
-      console.log(response);
-    }
-  });
-};
-
 ProcessingStore.prototype.fireEvent = function (response) {
   this.io.sockets.emit('firmatraEvent', response);
   console.log('Event transfered to Listener: ' + response.event);

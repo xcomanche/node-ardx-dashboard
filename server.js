@@ -13,11 +13,15 @@ var bodyParser      = require('body-parser');    // pull information from HTML P
 var methodOverride  = require('method-override'); // simulate DELETE and PUT (express4)
 var ProcessingStore = require('./app/scripts/stores/ProcessingStore');
 var DevicesStore    = require('./app/scripts/stores/DevicesStore');
+var StepsStore      = require('./app/scripts/stores/StepsStore');
+var StepModel       = require('./app/scripts/models/Step');
 var j5loader        = require('./app/scripts/lib/j5loader');
 var Common          = require('./app/scripts/utils/common');
+var STATUSES        = Common.CommandStatuses;
+var events          = [];
 var allowCrossDomain= function(req, res, next) {
   res.header('Access-Control-Allow-Origin', 'http://localhost:9000');
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
 
   next();
@@ -51,11 +55,13 @@ var server          = app.listen(8080, function () {
 var io              = require('socket.io').listen(server);
 var processingStore = new ProcessingStore(zmqServer, zmqClient, io);
 var devicesStore    = new DevicesStore();
+var stepsStore      = new StepsStore(processingStore);
 
 io.sockets.on('connection', function(client) {
   console.log('Socket.io - Client connected: ' + client.conn.remoteAddress);
 });
-processingStore.listen(io);
+
+listen(zmqClient);
 
 app.get('/api/object', function(req, res) {
   res.json({'objects': JSON.stringify(j5loader.getItemsForSerialization())});
@@ -132,3 +138,61 @@ app.put('/api/device', function(req, res) {
   return true;
 });
 
+app.get('/api/step', function(req, res) {
+  res.json({'steps': stepsStore.serialize()});
+});
+
+app.post('/api/step', function(req, res) {
+  var step = new StepModel('Step ' + (stepsStore.getItems().length + 1));
+  stepsStore.add(step);
+  res.json({'status': 'step:created', 'id':step.id});
+  return true;
+});
+
+app.put('/api/step', function(req, res) {
+  var trigger = req.body.trigger;
+  var triggerParams = req.body.triggerParams;
+  var command = req.body.command;
+  var params  = req.body.commandParams;
+  var device  = devicesStore.findById(req.body.device);
+  var id      = req.body.step;
+  var step    = stepsStore.findById(id);
+
+  if (trigger) {
+    step.addTrigger(trigger, triggerParams);
+  }
+
+  if (command) {
+    step.addCommand(device, command, params);
+  }
+
+  res.json({'status': 'step:updated', 'step':step.serialize()});
+  return true;
+});
+
+app.post('/api/enableWorkflow', function(req, res) {
+  if (req.body.enable && stepsStore.getItems().length > 0) {
+    stepsStore.enable();
+    res.json({'status': 'flow:enabled'});
+  } else {
+    stepsStore.disable();
+    res.json({'status': 'flow:disabled'});
+  }
+
+  return true;
+});
+
+function listen(client) {
+  client.on('message', function(resp){
+    var response = JSON.parse(resp);
+
+    if ((response.id) && (response.status = STATUSES.COMPLETED)) {
+      processingStore.fireEvent(response);
+      stepsStore.fireEvent(response.event, response)
+    } else if (response.id) {
+      processingStore.processResponseToCommand(response);
+    } else {
+      console.log(response);
+    }
+  });
+}

@@ -40,6 +40,9 @@ angular
         redirectTo: '/index'
       });
   })
+  .config(['$httpProvider', function ($httpProvider) {
+
+  }])
   .factory('messagesSocket', function (socketFactory) {
     var connection = io.connect('http://127.0.0.1:8080/');
 

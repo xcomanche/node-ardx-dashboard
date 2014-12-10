@@ -1,1 +1,33 @@
-<b>dashboard</b> html page
+<div style="witdth:100%">
+  <input type="button" value="Add Step" ng-click="postStep()" />
+
+  <form>
+    <fieldset>
+      <legend>Configure Workflow:</legend>
+      Step: <select name="step" ng-model="stepModel.step">
+      <option ng-repeat="step in steps" value="{{step.id}}"> {{step.name}}</option>
+      </select> <br />
+      Trigger: <input type="text" ng-model="stepModel.trigger"> Params: <input type="text" ng-model="stepModel.triggerParams"> <br />
+      Device: <select name="device" ng-model="stepModel.device">
+                <option ng-repeat="device in devices" value="{{device.id}}"> {{device.name}}</option>
+              </select> <br />
+      Command: <input type="text" ng-model="stepModel.command"> <br />
+      Params: <input type="text" ng-model="stepModel.commandParams"> <br />
+      <input type="button" value="Update" ng-click="updateStep()"> <br />
+    </fieldset>
+  </form>
+
+  <h1>Steps</h1>
+  <div style="width:200px; border: solid 1px; float:left; margin-right:20px; padding:5px;" ng-repeat="step in steps">
+    <p><strong>{{step.name}}</strong></p>
+    <p>Triggers</p>
+    <ul>
+      <li ng-repeat="(trigger, value) in step.triggers"> {{trigger}} [{{value}}]
+    </ul>
+    <p>Commands</p>
+    <ol>
+      <li ng-repeat="command in step.commands"> {{command.device.name}} [{{command.command}}] ({{command.params}})
+    </ol>
+    <input type="button" value="Run" ng-click="runStep('{{step.id}}')" />
+  </div>
+</div>

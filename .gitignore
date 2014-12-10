@@ -27,3 +27,5 @@ bower_components
 .idea/workspace.xml
 
 projectFilesBackup/.idea/workspace.xml
+
+npm-debug.log

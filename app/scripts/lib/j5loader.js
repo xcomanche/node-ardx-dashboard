@@ -5,8 +5,9 @@ var J5Loader = function () {
   var me = this;
   me.items = {};
   [
-    "Led",
-    "Pir"
+    'Led',
+    'Pir',
+    'Servo'
   ].forEach(function(constructor) {
       me.add(constructor, require(
         "./objects/" + constructor.toLowerCase()

@@ -2,12 +2,14 @@
  * Created by comanche on 06.12.14.
  */
 var BaseStore = require('./BaseStore');
+var Common  = require('../utils/common');
 
 StepsStore.prototype = new BaseStore();
 StepsStore.prototype.constructor=StepsStore;
 
-function StepsStore(processingStore) {
+function StepsStore(processingStore, io) {
   BaseStore.call(this);
+  this.io = io;
   this.workflowEnabled = false;
   this.processingStore = processingStore;
   this.events = {};
@@ -40,6 +42,7 @@ StepsStore.prototype.executeStep = function (id) {
   console.log('Started execution for step: ' + step.name);
   this.io.sockets.emit('step:started', serialized);
   step.execute(this.processingStore);
+  Common.sleep(3000);
   this.io.sockets.emit('step:completed', serialized);
   console.log('Completed execution for step: ' + step.name);
   this.fireEvent('step:completed', step)

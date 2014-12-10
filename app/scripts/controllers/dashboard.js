@@ -14,6 +14,16 @@ angular.module('nodeArdxDashboardApp')
     $scope.devices    = {};
     $scope.steps      = {};
     $scope.stepModel  = {};
+    $scope.workflowEnabled = {};
+    $scope.subscribeEvents = [
+      'Manual',
+      'step:started',
+      'step:completed',
+      'motionstart',
+      'motionend',
+      'sweep:full',
+      'sweep:half'
+    ];
     $scope.events     = [];
 
     $scope.$on('socket:firmatraEvent', function (ev, data) {
@@ -25,6 +35,18 @@ angular.module('nodeArdxDashboardApp')
     refreshObjects();
     refreshWorkflow();
     refreshDevices();
+    getWorkflowStatus();
+
+    $scope.getWorkflow   = function () {
+      $http.post(apiUrl + '/step').
+        success(function(data) {
+          console.log('Success: ' + data);
+          refreshWorkflow();
+        }).
+        error(function(data) {
+          console.log('Fail: ' + data);
+        });
+    };
 
     $scope.postStep   = function () {
       $http.post(apiUrl + '/step').
@@ -56,6 +78,41 @@ angular.module('nodeArdxDashboardApp')
         });
     };
 
+    $scope.runStep    = function (id) {
+
+      $http.post(apiUrl + '/runStep', {id:id}).
+        success(function(data) {
+          console.log('Success: ' + data);
+          refreshWorkflow();
+        }).
+        error(function(data) {
+          console.log('Fail: ' + data);
+        });
+    };
+
+    $scope.removeStep    = function (id) {
+
+      $http.post(apiUrl + '/removeStep', {id:id}).
+        success(function(data) {
+          console.log('Success: ' + data);
+          refreshWorkflow();
+        }).
+        error(function(data) {
+          console.log('Fail: ' + data);
+        });
+    };
+
+    $scope.toogleWorkflow = function () {
+      $http.post(apiUrl + '/enableWorkflow', {enable:!$scope.workflowEnabled}).
+        success(function(data) {
+          console.log('Success: ' + data);
+          getWorkflowStatus();
+        }).
+        error(function(data) {
+          console.log('Fail: ' + data);
+        });
+    };
+
     $scope.putDevice = function (id) {
       var body    = {};
       body.id     = id;
@@ -71,13 +128,27 @@ angular.module('nodeArdxDashboardApp')
         });
     };
 
+    function getWorkflowStatus() {
+      $http.get(apiUrl + '/enableWorkflow').
+        success(function(data) {
+          $scope.workflowEnabled = data['enabled'];
+        }).
+        error(function() {
+          console.log('Something went wrong');
+        });
+    }
+
     function refreshWorkflow() {
       $http.get(apiUrl + '/step').
         success(function(data) {
           if (data['steps']) {
             if (Object.keys(data.steps).length) {
               $scope.steps = data.steps;
+            } else {
+              $scope.steps = {};
             }
+          } else {
+            $scope.steps = {};
           }
         }).
         error(function() {

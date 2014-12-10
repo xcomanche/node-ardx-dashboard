@@ -41,6 +41,7 @@ Step.prototype.getCommands = function() {
 Step.prototype.execute = function(processingStore) {
   this.commands.forEach(function(complexCommand) {
     processingStore.add(complexCommand.device.command(complexCommand.command, complexCommand.params));
+    Common.sleep(2000);
   });
 };
 

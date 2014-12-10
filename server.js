@@ -55,7 +55,7 @@ var server          = app.listen(8080, function () {
 var io              = require('socket.io').listen(server);
 var processingStore = new ProcessingStore(zmqServer, zmqClient, io);
 var devicesStore    = new DevicesStore();
-var stepsStore      = new StepsStore(processingStore);
+var stepsStore      = new StepsStore(processingStore, io);
 
 io.sockets.on('connection', function(client) {
   console.log('Socket.io - Client connected: ' + client.conn.remoteAddress);
@@ -170,15 +170,34 @@ app.put('/api/step', function(req, res) {
   return true;
 });
 
+app.get('/api/enableWorkflow', function(req, res) {
+  res.json({'type': 'flow', enabled: stepsStore.workflowEnabled});
+  return true;
+});
+
 app.post('/api/enableWorkflow', function(req, res) {
   if (req.body.enable && stepsStore.getItems().length > 0) {
     stepsStore.enable();
-    res.json({'status': 'flow:enabled'});
   } else {
     stepsStore.disable();
-    res.json({'status': 'flow:disabled'});
   }
+  res.json({'type': 'flow', enabled: stepsStore.workflowEnabled});
+  return true;
+});
 
+app.post('/api/runStep', function(req, res) {
+  if (req.body.id) {
+    res.json({'status': 'step:started'});
+    stepsStore.executeStep(req.body.id);
+  }
+  return true;
+});
+
+app.post('/api/removeStep', function(req, res) {
+  if (req.body.id) {
+    stepsStore.remove(req.body.id);
+    res.json({type: 'step', status: 'removed'});
+  }
   return true;
 });
 

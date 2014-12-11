@@ -42,7 +42,6 @@ StepsStore.prototype.executeStep = function (id) {
   console.log('Started execution for step: ' + step.name);
   this.io.sockets.emit('step:started', serialized);
   step.execute(this.processingStore);
-  Common.sleep(3000);
   this.io.sockets.emit('step:completed', serialized);
   console.log('Completed execution for step: ' + step.name);
   this.fireEvent('step:completed', step)
